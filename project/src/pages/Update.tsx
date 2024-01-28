@@ -14,7 +14,7 @@ function Update() {
 
   const authToken = Cookies.get("token");
 
-  const handleUpdateUser = async (e) => {
+  const handleUpdateUser = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     try {
       const response = await fetch(
