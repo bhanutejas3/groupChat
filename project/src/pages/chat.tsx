@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import ChatInput from "../component/chatInput";
 import io from "socket.io-client";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 interface User {
   _id: string;
@@ -22,7 +22,7 @@ function Chat() {
   const navigate = useNavigate();
 
   const [messages, setMessages] = useState<Message[]>([]);
-  const [otherUser, setOtherUser] = useState<string | null>(null);
+  const [otherUser, setOtherUser] = useState<string | null>();
   const currentUserString = localStorage.getItem("currentUser");
   const currentUser = currentUserString ? JSON.parse(currentUserString) : null;
 
@@ -102,10 +102,9 @@ function Chat() {
         const response = await fetch(
           `http://127.0.0.1:3000/api/message/${currentUser._id}/${otherUser}`
         );
+
         if (response.status === 200) {
           const data = await response.json();
-          console.log(data);
-
           setMessages(data);
         } else {
           throw new Error(`Failed to fetch messages: ${response.status}`);
@@ -114,11 +113,13 @@ function Chat() {
         console.error("Error fetching messages:", error);
       }
     };
-    fetchMessages();
-  }, [otherUser]);
+
+    if (otherUser !== undefined) {
+      fetchMessages();
+    }
+  }, [currentUser._id, otherUser]);
 
   const handleMessage = async (msg: string) => {
-    // Handle sending the message to the server
     try {
       console.log(msg, otherUser);
       const body = JSON.stringify({
@@ -154,7 +155,13 @@ function Chat() {
   return (
     <>
       <div className="box-border rounded-md flex flex-row p-6">
-        <div className="w-[10%] bg-gray-200">
+        <div className="w-[10%] bg-gray-200 p-2 flex flex-col gap-2 items-center">
+          <Link
+            to="/update"
+            className="w-full flex p-4 m-2 bg-blue-500 text-white rounded-md shadow-md justify-center hover:bg-blue-600 text-nowrap"
+          >
+            Update User
+          </Link>
           <input
             type="text"
             placeholder="Search..."
@@ -163,7 +170,7 @@ function Chat() {
             className="w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:border-blue-500"
           />
 
-          <ul>
+          <ul className="w-full">
             {users.map((user) => (
               <li key={user._id}>
                 <button

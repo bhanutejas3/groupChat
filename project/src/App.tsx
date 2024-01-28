@@ -4,6 +4,7 @@ import Chat from "./pages/chat";
 import Login from "./pages/login";
 import Register from "./pages/register";
 import Header from "./component/header";
+import Update from "./pages/Update";
 
 function App() {
   const currentUserString = localStorage.getItem("currentUser");
@@ -21,6 +22,7 @@ function App() {
           />
           <Route path="/login" element={<Login />} />
           <Route path="/chat" element={<Chat />} />
+          <Route path="/update" element={<Update />} />
         </Routes>
       </BrowserRouter>
     </>

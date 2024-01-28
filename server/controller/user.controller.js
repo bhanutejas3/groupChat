@@ -85,3 +85,47 @@ export const allUsers = async (req, res, next) => {
     next(err);
   }
 };
+
+export const updateUser = async (req, res, next) => {
+  const userId = req.body.userId;
+  const updates = req.body;
+
+  try {
+    const updateFields = {};
+    for (const key in updates) {
+      if (updates.hasOwnProperty(key) && key !== "userId") {
+        updateFields[key] = updates[key];
+      }
+    }
+
+    let hashedPassword = "";
+    if (
+      updateFields.hasOwnProperty("password") &&
+      updateFields["password"] !== ""
+    ) {
+      const salt = parseInt(process.env.SALT);
+      hashedPassword = bcryptjs.hashSync(updateFields["password"], salt);
+      updateFields["password"] = hashedPassword;
+    } else {
+      delete updateFields["password"];
+    }
+
+    const user = await User.findByIdAndUpdate(userId, updateFields, {
+      new: true,
+    });
+
+    if (!user) {
+      res.status(404).json({ message: "User not Found", status: "404" });
+      return;
+    }
+
+    const userChanged = user.toObject();
+    delete userChanged.password;
+
+    res
+      .status(200)
+      .json({ message: "User Updated", status: "200", user: userChanged });
+  } catch (err) {
+    next(err);
+  }
+};

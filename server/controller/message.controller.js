@@ -13,7 +13,6 @@ export const getMessages = async (req, res) => {
         { sender: openedUserId, recipient: userId },
       ],
     });
-
     res.json(messages);
   } catch (error) {
     res.status(500).json({ message: error.message });
