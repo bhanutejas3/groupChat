@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
 
 function Register() {
@@ -7,9 +7,8 @@ function Register() {
   const [email, SetEmail] = useState("");
   const [password, SetPassword] = useState("");
   const [message, setMessage] = useState("");
-  const navigate = useNavigate();
 
-  const handleRegister = async (e) => {
+  const handleRegister = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
 
     try {
@@ -30,13 +29,12 @@ function Register() {
         console.log("User registered successfully");
         setMessage(response.message);
         Cookies.set("token", response.token);
-        // navigate("/chat");
       } else {
         console.error("Failed to register user");
         setMessage(response.message);
       }
     } catch (error) {
-      setMessage(error);
+      setMessage(error as string);
       console.error("An error occurred:", error);
     }
   };

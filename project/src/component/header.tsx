@@ -1,15 +1,13 @@
-import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 function Header() {
-  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  const currentUserString = localStorage.getItem("currentUser");
+  const currentUser = currentUserString ? JSON.parse(currentUserString) : null;
   const navigate = useNavigate();
 
   const userRole = currentUser?.role || "user";
   const user = currentUser?.username || "";
-  function handleLogout(
-    event: MouseEvent<HTMLButtonElement, MouseEvent>
-  ): void {
+  function handleLogout() {
     localStorage.removeItem("currentUser");
     navigate("/login");
   }

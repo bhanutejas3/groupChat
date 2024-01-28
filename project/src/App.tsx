@@ -4,10 +4,10 @@ import Chat from "./pages/chat";
 import Login from "./pages/login";
 import Register from "./pages/register";
 import Header from "./component/header";
-import { createContext, useState } from "react";
 
 function App() {
-  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  const currentUserString = localStorage.getItem("currentUser");
+  const currentUser = currentUserString ? JSON.parse(currentUserString) : null;
   const userRole = currentUser?.role || "user";
   return (
     <>

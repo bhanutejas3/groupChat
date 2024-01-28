@@ -1,17 +1,8 @@
-import EmojiPicker from "emoji-picker-react";
 import { FormEvent, useState } from "react";
-import { BsEmojiSmileFill } from "react-icons/bs";
 import { IoMdSend } from "react-icons/io";
 
-const ChatInput = (props: { handleMessage }) => {
-  const [emojiClicked, setEmojiClicked] = useState(false);
+const ChatInput = (props: { handleMessage: (arg0: string) => void }) => {
   const [msg, setMsg] = useState("");
-
-  const handelEmojiInput = (emoji: { emoji: string }) => {
-    let message = msg;
-    message += emoji.emoji;
-    setMsg(message);
-  };
 
   const handelSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -23,20 +14,6 @@ const ChatInput = (props: { handleMessage }) => {
 
   return (
     <div className="emojimsgInput flex flex-row w-full">
-      {/* <div className="emojiInput flex items-center relative">
-        <div className="emojiButton mr-2 w-[5%] relative">
-          <BsEmojiSmileFill
-            onClick={() => setEmojiClicked(!emojiClicked)}
-          ></BsEmojiSmileFill>
-          {emojiClicked && (
-            <div className="absolute top-0 right-0 mt-8">
-              <EmojiPicker
-                onEmojiClick={(emoji: any) => handelEmojiInput(emoji)}
-              />
-            </div>
-          )}
-        </div>
-      </div>  */}
       <form
         className="messageInputContainer flex flex-row w-[99%] p-3"
         onSubmit={(event) => handelSubmit(event)}

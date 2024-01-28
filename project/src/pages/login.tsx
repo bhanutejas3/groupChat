@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 
@@ -8,7 +8,7 @@ function Login() {
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
-  const handleRegister = async (e) => {
+  const handleLogin = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
 
     try {
@@ -35,7 +35,7 @@ function Login() {
         setMessage(response.message);
       }
     } catch (error) {
-      setMessage(error);
+      setMessage(error as string);
       console.error("An error occurred:", error);
     }
   };
@@ -44,7 +44,7 @@ function Login() {
       <div className="box-border shadow-md flex flex-col gap-2 items-center justify-center p-6  mx-[20vw] my-[10vh] bg-yellow-50">
         <h1 className="font-bold text-4xl ">Login</h1>
         <div className="flex flex-col items-center justify-center gap-2 h-[50vh]">
-          <form onSubmit={handleRegister}>
+          <form onSubmit={handleLogin}>
             <input
               className="w-[100%] p-3 m-2  bg-blue-100"
               type="username"

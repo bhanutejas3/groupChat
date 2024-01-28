@@ -1,20 +1,30 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import ChatInput from "../component/chatInput";
 import io from "socket.io-client";
 import { useNavigate } from "react-router-dom";
 
+interface User {
+  _id: string;
+  username: string;
+}
+
+interface Message {
+  sender: string;
+  message: string;
+}
+
 function Chat() {
-  const [users, setUsers] = useState([]);
-  const [originalUsers, setOriginalUsers] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [users, setUsers] = useState<User[]>([]);
+  const [originalUsers, setOriginalUsers] = useState<User[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const authToken = Cookies.get("token");
   const navigate = useNavigate();
 
-  const [message, setMessage] = useState([{}]);
-  const [arrivalMessage, setArrivalMessage] = useState(null);
-  const [otherUser, setOtherUser] = useState();
-  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [otherUser, setOtherUser] = useState<string | null>(null);
+  const currentUserString = localStorage.getItem("currentUser");
+  const currentUser = currentUserString ? JSON.parse(currentUserString) : null;
 
   const socket = io("http://127.0.0.1:3000");
 
@@ -41,19 +51,19 @@ function Chat() {
 
         let temp = response.user;
 
-        temp = temp.filter((id) => id._id !== currentUser._id);
+        temp = temp.filter((id: { _id: string }) => id._id !== currentUser._id);
 
         setUsers(temp);
         setOriginalUsers(temp);
       } catch (error) {
-        console.error("Error fetching users:", error.message);
+        console.error("Error fetching users:", error);
       }
     }
 
     getUsers();
   }, []);
 
-  const sendMessage = (msg) => {
+  const sendMessage = (msg: string) => {
     console.log("emit");
 
     socket.emit("chat message", {
@@ -65,7 +75,7 @@ function Chat() {
 
   useEffect(() => {
     socket.on("chat message", (msg) => {
-      setMessage((prevMessages) => [...prevMessages, msg]);
+      setMessages((prevMessages) => [...prevMessages, msg]);
     });
 
     return () => {
@@ -73,13 +83,13 @@ function Chat() {
     };
   }, []);
 
-  const handleInputChange = (event) => {
+  const handleInputChange = (event: { target: { value: string } }) => {
     const { value } = event.target;
     setSearchTerm(value);
     filterData(value);
   };
 
-  const filterData = (searchTerm) => {
+  const filterData = (searchTerm: string) => {
     const filteredData = originalUsers.filter((item) =>
       item.username.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -96,18 +106,18 @@ function Chat() {
           const data = await response.json();
           console.log(data);
 
-          setMessage(data);
+          setMessages(data);
         } else {
           throw new Error(`Failed to fetch messages: ${response.status}`);
         }
       } catch (error) {
-        console.error("Error fetching messages:", error.message);
+        console.error("Error fetching messages:", error);
       }
     };
     fetchMessages();
   }, [otherUser]);
 
-  const handleMessage = async (msg) => {
+  const handleMessage = async (msg: string) => {
     // Handle sending the message to the server
     try {
       console.log(msg, otherUser);
@@ -137,7 +147,7 @@ function Chat() {
         throw new Error(`Error sending message: ${response.status}`);
       }
     } catch (error) {
-      console.error("Error sending message:", error.message);
+      console.error("Error sending message:", error);
     }
   };
 
@@ -172,8 +182,8 @@ function Chat() {
         <div className="bg-orange-200 w-[80%] flex flex-col h-screen">
           <div className="w-full flex-1 overflow-auto">
             <div className="messageDisplay flex flex-col items-start justify-end h-full p-4">
-              {message.length > 1
-                ? message.map((msg, index) => {
+              {messages.length > 1
+                ? messages.map((msg, index) => {
                     return (
                       <div
                         className={`message ${
