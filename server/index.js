@@ -8,6 +8,7 @@ import { Server } from "socket.io";
 
 import userRoute from "./route/user.route.js";
 import messageRoute from "./route/message.route.js";
+import groupRoute from "./route/group.route.js";
 
 dotenv.config();
 
@@ -55,6 +56,7 @@ mongoose
 
 app.use("/api/user", userRoute);
 app.use("/api/message", messageRoute);
+app.use("/api/group_message", groupRoute);
 
 server.listen(3000, () => {
   console.log("Connected to port 3000");

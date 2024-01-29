@@ -5,8 +5,6 @@ export const getMessages = async (req, res) => {
     const userId = req.params.userId;
     const openedUserId = req.params.openedUserId;
 
-    // Query messages where the sender is the current user and the recipient is the opened user
-    // or where the sender is the opened user and the recipient is the current user
     const messages = await Message.find({
       $or: [
         { sender: userId, recipient: openedUserId },
