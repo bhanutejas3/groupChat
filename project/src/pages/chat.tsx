@@ -26,7 +26,9 @@ function Chat() {
   const currentUserString = localStorage.getItem("currentUser");
   const currentUser = currentUserString ? JSON.parse(currentUserString) : null;
 
-  const socket = io("http://127.0.0.1:3000");
+  const socket = io("http://127.0.0.1:3000", {
+    transports: ["websocket", "polling"],
+  });
 
   useEffect(() => {
     if (!currentUser) {
@@ -77,11 +79,10 @@ function Chat() {
     socket.on("chat message", (msg) => {
       setMessages((prevMessages) => [...prevMessages, msg]);
     });
-
     return () => {
       socket.off("chat message");
     };
-  }, []);
+  }, [socket, messages]);
 
   const handleInputChange = (event: { target: { value: string } }) => {
     const { value } = event.target;
@@ -96,24 +97,31 @@ function Chat() {
     setUsers(filteredData);
   };
 
-  useEffect(() => {
-    const fetchMessages = async () => {
-      try {
-        const response = await fetch(
-          `http://127.0.0.1:3000/api/message/${currentUser._id}/${otherUser}`
-        );
-
-        if (response.status === 200) {
-          const data = await response.json();
-          setMessages(data);
-        } else {
-          throw new Error(`Failed to fetch messages: ${response.status}`);
+  const fetchMessages = async () => {
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:3000/api/message/${currentUser._id}/${otherUser}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
         }
-      } catch (error) {
-        console.error("Error fetching messages:", error);
-      }
-    };
+      );
 
+      if (response.status === 200) {
+        const data = await response.json();
+        setMessages(data);
+      } else {
+        throw new Error(`Failed to fetch messages: ${response.status}`);
+      }
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+    }
+  };
+
+  useEffect(() => {
     if (otherUser !== undefined) {
       fetchMessages();
     }
@@ -129,7 +137,6 @@ function Chat() {
         group: null,
       });
       sendMessage(msg);
-      console.log(body);
       const response = await fetch(
         `http://127.0.0.1:3000/api/message/addMessage`,
         {
@@ -143,7 +150,7 @@ function Chat() {
       );
 
       if (response.status === 201) {
-        // Message sent successfully, update UI or fetch messages again if needed
+        fetchMessages();
       } else {
         throw new Error(`Error sending message: ${response.status}`);
       }
@@ -189,7 +196,7 @@ function Chat() {
         <div className="bg-orange-200 w-[80%] flex flex-col h-screen">
           <div className="w-full flex-1 overflow-auto">
             <div className="messageDisplay flex flex-col items-start justify-end h-full p-4">
-              {messages.length > 1
+              {messages.length > 0
                 ? messages.map((msg, index) => {
                     return (
                       <div

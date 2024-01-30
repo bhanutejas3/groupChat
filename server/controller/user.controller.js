@@ -67,7 +67,7 @@ export const findUser = async (req, res, next) => {
       secure: true,
       sameSite: "none",
     });
-
+    req.session.userId = user._id;
     res
       .status(200)
       .json({ message: "User Found", status: "200", user: userChanged, token });

@@ -3,12 +3,15 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import session from "express-session";
+import MongoStore from "connect-mongo";
 import http from "http";
 import { Server } from "socket.io";
 
 import userRoute from "./route/user.route.js";
 import messageRoute from "./route/message.route.js";
 import groupRoute from "./route/group.route.js";
+import { requireAuth } from "./middleware/auth.js";
 
 dotenv.config();
 
@@ -19,7 +22,9 @@ const io = new Server(server, {
     origin: "*",
     credentials: true,
   },
+  transports: ["websocket", "polling"],
 });
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(
@@ -54,9 +59,27 @@ mongoose
     console.log(err);
   });
 
+const MongoStoreInstance = MongoStore.create({
+  mongoUrl: process.env.MONGO,
+});
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStoreInstance,
+    cookie: {
+      secure: false,
+      path: "/",
+      maxAge: 1000 * 60 * 60 * 24,
+    },
+  })
+);
+
 app.use("/api/user", userRoute);
-app.use("/api/message", messageRoute);
-app.use("/api/group_message", groupRoute);
+app.use("/api/message", requireAuth, messageRoute);
+app.use("/api/group_message", requireAuth, groupRoute);
 
 server.listen(3000, () => {
   console.log("Connected to port 3000");

@@ -18,7 +18,7 @@ function Header() {
         <h1 className="text-3xl font-bold">Chat App</h1>
         <div className="flex flex-row gap-3 text-pretty text-amber-50">
           <Link to="/">Home</Link>
-          {user.trim().length > 1 ? (
+          {currentUser ? (
             <button onClick={handleLogout}>Logout</button>
           ) : (
             <Link to="/login">Login</Link>
